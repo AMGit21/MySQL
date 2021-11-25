@@ -1,0 +1,92 @@
+/* Create the database "School" if it isn't exist */
+CREATE DATABASE IF NOT EXISTS School;
+
+/* We have to choose which database we want to work on */
+USE School;
+
+/* Create the table "student", if it isn't exist, with the necessary data */
+CREATE TABLE IF NOT EXISTS student(student_id int AUTO_INCREMENT, first_name varchar(25), ln varchar(25), age int, PRIMARY KEY (student_id));
+
+/* Insert data into the student table */
+INSERT INTO student (first_name, ln, age) VALUES("Ali", "Younes", 23), ("Mhmd", "Jaber", 19), ("Karima", "AlSheikh", 18), ("Mirna", "Jammoul", 20), ("Hassan", "Zahra", 22), ("Nader", "Zein", 24);
+
+/* Create the table "subject", if it isn't exist, with the necessary data */
+CREATE TABLE IF NOT EXISTS subject(subject_id varchar(15), subject_name varchar(25), PRIMARY KEY (subject_id));
+
+/* Insert data into the subject table */
+INSERT INTO subject VALUES ("cycle_1_fr_1", "HTML5"),("cycle_1_fr_2", "CSS3"),("cycle_1_fr_3", "JavaScript"), ("cycle_1_bk_1", "MySQL");
+
+/* Create the table "student_grades", if it isn't exist, with the necessary data */
+CREATE TABLE IF NOT EXISTS student_grades(std_id int, sub_id varchar(15), grade_date date, grade int, 
+                            PRIMARY KEY (std_id, sub_id, grade_date),
+                            FOREIGN KEY (std_id) REFERENCES student(student_id),
+                            FOREIGN KEY (sub_id) REFERENCES subject(subject_id));
+                            
+/* Insert data into the student_grades table */                          
+INSERT INTO student_grades(std_id, sub_id, grade_date, grade) 
+  VALUES (1,"cycle_1_fr_1","2021-12-01", 17),
+         (1,"cycle_1_fr_2","2021-12-01", 16),
+         (1,"cycle_1_fr_3","2021-12-01", 14),
+         (1,"cycle_1_bk_1","2021-12-01", 13),
+         (2,"cycle_1_fr_1","2021-12-01", 17),
+         (2,"cycle_1_fr_2","2021-12-01", 16),
+         (2,"cycle_1_fr_3","2021-12-01", 14),
+         (2,"cycle_1_bk_1","2021-12-01", 13),
+         (3,"cycle_1_fr_1","2021-12-01", 7),
+         (3,"cycle_1_fr_2","2021-12-01", 8),
+         (3,"cycle_1_fr_3","2021-12-01", 6),
+         (3,"cycle_1_bk_1","2021-12-01", 7),
+         (4,"cycle_1_fr_1","2021-12-01", 9),
+         (4,"cycle_1_fr_2","2021-12-01", 10),
+         (4,"cycle_1_fr_3","2021-12-01", 11),
+         (4,"cycle_1_bk_1","2021-12-01", 13),
+         (5,"cycle_1_fr_1","2021-12-01", 9),
+         (5,"cycle_1_fr_2","2021-12-01", 8),
+         (5,"cycle_1_fr_3","2021-12-01", 9),
+         (5,"cycle_1_bk_1","2021-12-01", 10),
+         (6,"cycle_1_fr_1","2021-12-01", 14),
+         (6,"cycle_1_fr_2","2021-12-01", 15),
+         (6,"cycle_1_fr_3","2021-12-01", 12),
+         (6,"cycle_1_bk_1","2021-12-01", 11);
+
+/* To display the data in the created tables */
+SELECT * FROM student;
+SELECT * FROM subject;
+SELECT * FROM student_grades;
+
+1 - Question: Show the averages of students from the highest to the lowest value
+    Remark: you want to display the full name of student in a one column, also you want to display a message 'Successed' if the student has a grade greater or equal 10,             otherwise display 'Failed' 
+    Solution: SELECT CONCAT_WS(' ', s.first_name, s.ln) AS "Full Name", FORMAT(AVG(sg.grade), 2) AS Average,
+              CASE 
+                  WHEN AVG(sg.grade) >= 10 THEN 'Successed'
+                  ELSE 'Failed'
+              END AS Result
+              FROM student AS s, student_grades AS sg
+              WHERE s.student_id = sg.std_id
+              GROUP BY sg.std_id
+              ORDER BY AVG(sg.grade) DESC;
+
+2 - Question: Change the attribute "ln" in the student table to "last_name"
+    Solution: ALTER TABLE student 
+              CHANGE COLUMN ln last_name varchar(25);
+
+3 - Question: Change the grade of "karima" on the subject "MySQL" to 20
+    Solution: UPDATE student_grades 
+              SET grade = 20
+              WHERE std_id = 3 AND sub_id = "cycle_1_bk_1";
+
+4 - Question: Make sure that change is done
+    Solution: SELECT AVG(grade)
+              FROM student_grades
+              WHERE std_id = 3;
+
+5 - Question: Show the full name of students that have an average between 10 included and 15 excluded from the highest to the lowest value
+    Remark: you want to display the full name of student in a one column
+    Solution: SELECT CONCAT_WS(' ', s.first_name, s.last_name) AS "Full Name", FORMAT(AVG(sg.grade), 2) AS Average
+              FROM student AS s, student_grades AS sg
+              WHERE s.student_id = sg.std_id
+              GROUP BY sg.std_id  
+              HAVING AVG(sg.grade) >= 10 AND AVG(sg.grade) < 15
+              ORDER BY AVG(sg.grade) DESC;
+              
+          
